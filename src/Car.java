@@ -1,10 +1,12 @@
+import java.util.Iterator;
+
 /**
  * Copyright (c) Anton on 05.04.2019.
  */
-public class Car {
-    private static int id = 100;
+public class Car{
+    private volatile static int id = 100;
     private String number;
-    private Ticket parkingTicket;
+    private volatile Ticket parkingTicket;
 
     public Car() {
         number = "XX" + id++ + "X99";

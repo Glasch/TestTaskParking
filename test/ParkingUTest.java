@@ -27,7 +27,7 @@ public class ParkingUTest extends TestCase {
         }
     }
 
-    public void testParkTicketsBiggerThanCars(){
+    public void testParkTicketsBiggerThanCars() throws InterruptedException {
         ByteArrayInputStream in = new ByteArrayInputStream("10".getBytes());
         Parking parking = new Parking(in);
         parking.park(6);
@@ -35,7 +35,7 @@ public class ParkingUTest extends TestCase {
         assertEquals(6,parking.getCars().size());
     }
 
-    public void testParkTicketsEqualsThanCars(){
+    public void testParkTicketsEqualsThanCars() throws InterruptedException {
         ByteArrayInputStream in = new ByteArrayInputStream("6".getBytes());
         Parking parking = new Parking(in);
         parking.park(6);
@@ -43,7 +43,7 @@ public class ParkingUTest extends TestCase {
         assertEquals(6,parking.getCars().size());
     }
 
-    public void testParkTicketsSmallerThanCars(){
+    public void testParkTicketsSmallerThanCars() throws InterruptedException {
         ByteArrayInputStream in = new ByteArrayInputStream("4".getBytes());
         Parking parking = new Parking(in);
         parking.park(6);
