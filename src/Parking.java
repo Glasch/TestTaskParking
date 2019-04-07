@@ -1,41 +1,48 @@
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Properties;
 import java.util.Scanner;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Copyright (c) Anton on 05.04.2019.
  */
 class Parking {
+    private String parkTime;
     private volatile ArrayList <Ticket> availableTickets;
-    private ArrayList <Car> cars = new ArrayList <>();
-    private ExecutorService gatesIn = Executors.newFixedThreadPool(2);
-    private ExecutorService gatesOut = Executors.newFixedThreadPool(2);
-    private ArrayList<Future> futures = new ArrayList <>();
+    private volatile ArrayList <Car> cars = new ArrayList <>();
+    private ExecutorService gates = Executors.newFixedThreadPool(2);
+    private ArrayList <Future> futures = new ArrayList <>();
 
-
-    public Parking() {
+    Parking() throws FileNotFoundException {
         initAvailableTickets(System.in);
+        initParkTime();
     }
 
-    public Parking(InputStream in) {
+    /* for tests */
+    Parking(InputStream in) {
         initAvailableTickets(in);
+        initParkTime();
     }
 
-    public void park(int numberOfCars) throws InterruptedException {
-        Iterator <Ticket>  iter = availableTickets.iterator();
+    void park(int numberOfCars) throws InterruptedException {
+        Iterator <Ticket> iter = availableTickets.iterator();
         while (iter.hasNext()) {
             if (numberOfCars == 0) return;
             Ticket ticket = iter.next();
             Car car = new Car();
-            futures.add(gatesIn.submit(() -> {
+            futures.add(gates.submit(() -> {
                 park(car, ticket);
                 try {
                     System.out.println("Parking " + car + " in process..");
-                    Thread.sleep(TimeUnit.SECONDS.toMillis(1));
+                    Thread.sleep(TimeUnit.SECONDS.toMillis(new Integer(parkTime)));
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     System.out.println("Problem with " + car + " on Parking");
@@ -51,31 +58,52 @@ class Parking {
         cars.add(car);
     }
 
-    public void unPark(int ticketNumber) {
-        Iterator <Car> iter = cars.iterator();
-        while (iter.hasNext()) {
-            Car car = iter.next();
-            if (car.getParkingTicket().getNumber() == ticketNumber) {
-                availableTickets.add(car.getParkingTicket());
-                iter.remove();
+    void unPark(int ticketNumber) throws InterruptedException {
+        for (Ticket availableTicket : availableTickets) {
+            if (availableTicket.getNumber() == ticketNumber) {
+                System.out.println(ticketNumber + " is free!");
+                return;
+            }
+
+            boolean isFound = false;
+            for (Car car : cars) {
+                if (car.getParkingTicket().getNumber() == ticketNumber) {
+                    isFound = true;
+                    break;
+                }
+            }
+            if (!isFound) {
+                System.out.println("Parking doesnt contain ticket =  " + ticketNumber);
+                return;
+            }
+
+            for (Car car : cars) {
+                if (!(car.getParkingTicket().getNumber() == ticketNumber)) continue;
+                Ticket ticket = car.getParkingTicket();
+                if (ticket.getNumber() == ticketNumber) {
+                    futures.add(gates.submit(() -> {
+                        availableTickets.add(ticket);
+                        cars.remove(car);
+                        try {
+                            System.out.println("Unparking " + car + " in process..");
+                            Thread.sleep(TimeUnit.SECONDS.toMillis(1));
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            System.out.println("Problem with " + car + " on Parking");
+                        }
+                    }));
+                }
             }
         }
     }
 
-    public void unPark(int[] ticketNumbers) {
-        for (int i = 0; i < ticketNumbers.length - 1; i++) {
-            unPark(ticketNumbers[i]);
-        }
-    }
-
-
-    public void list() {
+    void list() {
         for (Car car : cars) {
             System.out.println(car);
         }
     }
 
-    public void count() {
+    void count() {
         System.out.println(availableTickets.size());
     }
 
@@ -89,6 +117,26 @@ class Parking {
             availableTickets.add(new Ticket());
     }
 
+    private void initParkTime() {
+        Properties prop = new Properties();
+        InputStream input = null;
+        try {
+            input = new FileInputStream("config.properties");
+            prop.load(input);
+            parkTime = prop.getProperty("time");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     private String validateInput(Scanner keyboard) {
         String line = keyboard.nextLine().trim();
         while (!line.matches("[1-9]*[0-9]")) {
@@ -98,16 +146,15 @@ class Parking {
         return line;
     }
 
-
-    public ArrayList <Future> getFutures() {
+    ArrayList <Future> getFutures() {
         return futures;
     }
 
-    public ArrayList <Car> getCars() {
+    ArrayList <Car> getCars() {
         return cars;
     }
 
-    public ArrayList <Ticket> getAvailableTickets() {
+    ArrayList <Ticket> getAvailableTickets() {
         return availableTickets;
     }
 }

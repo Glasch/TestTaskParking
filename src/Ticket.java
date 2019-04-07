@@ -1,15 +1,15 @@
 /**
  * Copyright (c) Anton on 05.04.2019.
  */
-public class Ticket {
+class Ticket {
     private volatile static int id = 0;
     private int number;
 
-    public Ticket() {
+    Ticket() {
         number = id++;
     }
 
-    public int getNumber() {
+    int getNumber() {
         return number;
     }
 }

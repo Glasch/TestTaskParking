@@ -1,30 +1,20 @@
-import java.util.Iterator;
-
 /**
  * Copyright (c) Anton on 05.04.2019.
  */
 public class Car{
     private volatile static int id = 100;
     private String number;
-    private volatile Ticket parkingTicket;
+    private Ticket parkingTicket;
 
-    public Car() {
+    Car() {
         number = "XX" + id++ + "X99";
     }
 
-    public String getNumber() {
-        return number;
-    }
-
-    public void setNumber(String number) {
-        this.number = number;
-    }
-
-    public Ticket getParkingTicket() {
+    Ticket getParkingTicket() {
         return parkingTicket;
     }
 
-    public void setParkingTicket(Ticket parkingTicket) {
+    void setParkingTicket(Ticket parkingTicket) {
         this.parkingTicket = parkingTicket;
     }
 
