@@ -2,11 +2,11 @@
  * Copyright (c) Anton on 05.04.2019.
  */
 class Ticket {
-    private volatile static int id = 0;
+    private static int nextNumber = 0;
     private int number;
 
     Ticket() {
-        number = id++;
+        number = nextNumber++;
     }
 
     int getNumber() {

@@ -1,5 +1,4 @@
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -15,13 +14,14 @@ import java.util.concurrent.TimeUnit;
  * Copyright (c) Anton on 05.04.2019.
  */
 class Parking {
-    private String parkTime;
+    public static final String TIME_TO_ENTER = "timeToEnter";
+    private String timeToEnter;
     private volatile ArrayList <Ticket> availableTickets;
     private volatile ArrayList <Car> cars = new ArrayList <>();
     private ExecutorService gates = Executors.newFixedThreadPool(2);
     private ArrayList <Future> futures = new ArrayList <>();
 
-    Parking() throws FileNotFoundException {
+    Parking() {
         initAvailableTickets(System.in);
         initParkTime();
     }
@@ -32,7 +32,7 @@ class Parking {
         initParkTime();
     }
 
-    void park(int numberOfCars) throws InterruptedException {
+    void park(int numberOfCars) {
         Iterator <Ticket> iter = availableTickets.iterator();
         while (iter.hasNext()) {
             if (numberOfCars == 0) return;
@@ -42,7 +42,7 @@ class Parking {
                 park(car, ticket);
                 try {
                     System.out.println("Parking " + car + " in process..");
-                    Thread.sleep(TimeUnit.SECONDS.toMillis(new Integer(parkTime)));
+                    Thread.sleep(TimeUnit.SECONDS.toMillis(new Integer(timeToEnter)));
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     System.out.println("Problem with " + car + " on Parking");
@@ -58,7 +58,7 @@ class Parking {
         cars.add(car);
     }
 
-    void unPark(int ticketNumber) throws InterruptedException {
+    void unPark(int ticketNumber) {
         for (Ticket availableTicket : availableTickets) {
             if (availableTicket.getNumber() == ticketNumber) {
                 System.out.println(ticketNumber + " is free!");
@@ -123,7 +123,7 @@ class Parking {
         try {
             input = new FileInputStream("config.properties");
             prop.load(input);
-            parkTime = prop.getProperty("time");
+            timeToEnter = prop.getProperty(TIME_TO_ENTER);
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally {
@@ -140,7 +140,7 @@ class Parking {
     private String validateInput(Scanner keyboard) {
         String line = keyboard.nextLine().trim();
         while (!line.matches("[1-9]*[0-9]")) {
-            System.out.print("parking size must be int! Please, input correct value: ");
+            System.out.print("Parking size must be a positive number! Please, input correct value: ");
             line = keyboard.nextLine();
         }
         return line;
