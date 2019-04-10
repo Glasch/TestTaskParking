@@ -1,13 +1,17 @@
+package parking;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Copyright (c) Anton on 05.04.2019.
  */
 public class Car{
-    private static int nextNumber = 100;
+    private static AtomicInteger nextNumber = new AtomicInteger(100);
     private String number;
     private Ticket parkingTicket;
 
     Car() {
-        number = "XX" + getNextId() + "X99";
+        number = "XX" + nextNumber.getAndIncrement() + "X99";
     }
 
     Ticket getParkingTicket() {
@@ -18,12 +22,8 @@ public class Car{
         this.parkingTicket = parkingTicket;
     }
 
-    private synchronized int getNextId() {
-        return nextNumber++;
-    }
-
     @Override
     public String toString() {
-        return "car number " + this.number + " carTicket: " + this.getParkingTicket().getNumber();
+        return "parking.Car number " + this.number + ", ticket: " + this.getParkingTicket().getNumber();
     }
 }

@@ -1,33 +1,30 @@
-import java.io.IOException;
-import java.util.List;
+package parking;
+
 import java.util.Scanner;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * Copyright (c) Anton on 05.04.2019.
  */
 public class Main {
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-        Parking parking = new Parking();
+    public static void main(String[] args) {
+        Parking parking = new Parking(System.in);
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.print("What next: ");
+            System.out.print("Please, input command: ");
             String line = scanner.nextLine().trim();
             if (line.matches("p:[1-9]*[0-9]")) {
+                //park N cars
                 String[] split = line.split(":");
                 parking.park(Integer.parseInt(split[1]));
-                waitAllFutures(parking.getFutures());
             } else if (line.matches("u:[1-9]*[0-9]")) {
+                //unpark a car with selected ticket number
                 String[] split = line.split(":");
                 parking.unPark(Integer.parseInt(split[1]));
-            } else if (line.matches("u:\\[([0-9]*,?)+\\]")) {
+            } else if (line.matches("u:\\[([0-9]*,?)+]")) {
+                //unpark cars with selected ticket numbers
                 String[] ticketNumbers = findTicketNumbers(line);
-                for (String ticketNumber : ticketNumbers) {
-                    parking.unPark(new Integer(ticketNumber));
-                }
-                waitAllFutures(parking.getFutures());
+                parking.unpark(ticketNumbers);
             } else if (line.matches("l")) {
                 System.out.println("Cars list: ");
                 parking.list();
@@ -38,24 +35,16 @@ public class Main {
                 System.out.println("Bye!");
                 System.exit(0);
             }
+            else{
+                System.out.println("Unrecognized command: " + line);
+            }
         }
     }
 
     private static String[] findTicketNumbers(String line) {
         String[] split = line.split(":");
-        String substring = split[1].substring(1, split[1].indexOf("]"));
+        String numbersString = split[1];
+        String substring = numbersString.substring(1, numbersString.indexOf("]"));
         return substring.split(",");
-    }
-
-
-    private static void waitAllFutures(List <Future> futures) throws InterruptedException {
-        for (Future future : futures) {
-            try {
-                future.get();
-            } catch (ExecutionException e) {
-                throw new IllegalStateException("Future problem", e);
-            }
-        }
-        futures.clear();
     }
 }
