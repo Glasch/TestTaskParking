@@ -24,6 +24,6 @@ public class Car{
 
     @Override
     public String toString() {
-        return "parking.Car number " + this.number + ", ticket: " + this.getParkingTicket().getNumber();
+        return "Car number " + this.number + ", ticket: " + this.getParkingTicket().getNumber();
     }
 }

@@ -2,6 +2,7 @@ package parking;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -18,8 +19,8 @@ class Parking {
 
     /* for tests */
     Parking(InputStream in) {
-        initAvailableTickets(in);
         initParkTime();
+        initAvailableTickets(in);
     }
 
     void park(int numberOfCars) {
@@ -40,13 +41,13 @@ class Parking {
 
     void unPark(int ticketNumber) {
         if (availableTickets.containsKey(ticketNumber)) {
-            System.out.println("parking.Ticket + " + ticketNumber + " is not in use!");
+            System.out.println("Ticket " + ticketNumber + " is not in use!");
             return;
         }
 
         Car car = ticket2car.get(ticketNumber);
         if (car == null) {
-            System.out.println("parking.Parking doesn't contain car with ticket =  " + ticketNumber);
+            System.out.println("Parking doesn't contain car with ticket =  " + ticketNumber);
             return;
         }
 
@@ -81,7 +82,7 @@ class Parking {
         car.setParkingTicket(ticket);
         ticket2car.put(ticket.getNumber(), car);
         try {
-            System.out.println("parking.Parking " + car + " in process..");
+            System.out.println("Parking " + car + " in process..");
             Thread.sleep(TimeUnit.SECONDS.toMillis(secondsToEnter));
         } catch (InterruptedException e) {
             throw new IllegalStateException(e);
@@ -101,7 +102,9 @@ class Parking {
 
     private void initParkTime() {
         Properties prop = new Properties();
-        try (InputStream input = new FileInputStream("config.properties")) {
+        ClassLoader classLoader = getClass().getClassLoader();
+        URL propertiesResource = classLoader.getResource("config.properties");
+        try (InputStream input = propertiesResource.openStream()) {
             prop.load(input);
             secondsToEnter = new Integer(prop.getProperty(TIME_TO_ENTER));
         } catch (Exception e) {
@@ -112,7 +115,7 @@ class Parking {
     private String validateInput(Scanner keyboard) {
         String line = keyboard.nextLine().trim();
         while (!line.matches("[1-9]*[0-9]")) {
-            System.out.print("parking.Parking size must be a positive number! Please, input correct value: ");
+            System.out.print("Parking size must be a positive number! Please, input correct value: ");
             line = keyboard.nextLine();
         }
         return line;

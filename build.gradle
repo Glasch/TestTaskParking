@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'idea'
 apply plugin: 'application'
 
 repositories {
@@ -9,14 +10,10 @@ dependencies {
     testCompile "junit:junit:4.12"
 }
 
-jar {
-    baseName = 'parking'
-    version =  '0.1.0'
-    manifest {
-        attributes "Main-Class": "parking.Main"
-    }
-
-    from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    }
+run {
+    main = 'parking.Main'
+    standardInput = System.in
 }
+
+mainClassName = "parking.Main"
+

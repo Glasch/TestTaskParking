@@ -1,7 +1,6 @@
 package parking;
 
 import junit.framework.TestCase;
-import parking.Parking;
 
 import java.io.ByteArrayInputStream;
 import java.util.NoSuchElementException;
