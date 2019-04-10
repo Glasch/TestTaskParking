@@ -13,11 +13,11 @@ public class Main {
         while (true) {
             System.out.print("Please, input command: ");
             String line = scanner.nextLine().trim();
-            if (line.matches("p:[1-9]*[0-9]")) {
+            if (line.matches("p:[1-9]+[0-9]*")) {
                 //park N cars
                 String[] split = line.split(":");
                 parking.park(Integer.parseInt(split[1]));
-            } else if (line.matches("u:[1-9]*[0-9]")) {
+            } else if (line.matches("u:[1-9]+[0-9]*")) {
                 //unpark a car with selected ticket number
                 String[] split = line.split(":");
                 parking.unPark(Integer.parseInt(split[1]));
